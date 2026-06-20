@@ -10,10 +10,11 @@
 </body>
 </html>
 <div>
-    <h1>商品一覧</h1>
+    @include('layouts.header')
+    <h1 class="ms-3">商品一覧</h1>
 
-    <table>
-        <thead>
+    <table class="table bordered-bottom text-center mx-auto w-75">
+        <thead class="text-center">
             <tr>
                 <th>商品番号</th>
                 <th>商品名</th>
@@ -28,10 +29,11 @@
                     <td>{{ $item->id }}</td>
                     <td>{{ $item->product_name }}</td>
                     <td>{{ $item->description }}</td>  
-                    <td><img src="{{ $item->image_path }}" alt="{{ $item->product_name }}" width="100"></td>
+                    <td><img src="{{ asset('storage/' . $item->image_path) }}" alt="{{ $item->product_name }}" width="100"></td>
                     <td>{{ $item->price }}</td>
                 </tr>
         @endforeach
         </tbody>         
     </table>
+    @include('layouts.footer')
 </div>

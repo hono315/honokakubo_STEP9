@@ -26,6 +26,34 @@
                         </div>
 
                         <div class="row mb-3">
+                            <label for="name_kanji" class="col-md-4 col-form-label text-md-end">{{ __('名前（漢字）') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="name_kanji" type="text" class="form-control @error('name_kanji') is-invalid @enderror" name="name_kanji" value="{{ old('name_kanji') }}" required autocomplete="name_kanji" autofocus>
+
+                                @error('name_kanji')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                         <div class="row mb-3">
+                            <label for="name_kana" class="col-md-4 col-form-label text-md-end">{{ __('名前（カナ）') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="name_kana" type="text" class="form-control @error('name_kana') is-invalid @enderror" name="name_kana" value="{{ old('name_kana') }}" required autocomplete="name_kana" autofocus>
+
+                                @error('name_kana')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
                             <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
 
                             <div class="col-md-6">
