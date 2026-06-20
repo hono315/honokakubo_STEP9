@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-
+use Illuminate\Http\Request;
 class LoginController extends Controller
 {
     /*
@@ -25,7 +25,21 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/items';
+    protected $redirectTo = '/products/index';
+
+     /**
+     * Validate the user login request.
+     *
+     * @return void
+     */
+
+    protected function validateLogin(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string', 'regex:/^[a-zA-Z0-9]+$/'],
+        ]);
+    }
 
     /**
      * Create a new controller instance.
