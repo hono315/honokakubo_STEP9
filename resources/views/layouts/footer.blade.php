@@ -30,5 +30,6 @@
         <div  class="text-center">
             © 2024 Cytech EC
         </div>
+    </footer>
 </body>
 </html>

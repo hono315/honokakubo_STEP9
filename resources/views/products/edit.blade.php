@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    <h1 class="mb-4">出品商品編集</h1> {{-- 少し下に余白を入れました --}}
+    <h1 class="mb-4">出品商品編集</h1> 
 
     <form action="{{ route('products.update', ['item' => $item->id]) }}" method="POST" enctype="multipart/form-data">
         @csrf

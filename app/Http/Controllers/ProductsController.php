@@ -12,9 +12,34 @@ class ProductsController extends Controller
     /**
      * 商品一覧画面を表示
      */
-    public function index()
+    public function index(Request $request)
     {
-        $items = Product::all();
+        $search   = $request->input('search');
+        $minPrice = $request->input('min_price');
+        $maxPrice = $request->input('max_price');
+
+        $items = Product::query()
+            ->when(auth()->check(), function ($query) {
+                $query->where('user_id', '!=', auth()->id());
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where('product_name', 'like', "%{$search}%");
+            })
+            ->when($minPrice, function ($query) use ($minPrice) {
+                $query->where('price', '>=', $minPrice);
+            })
+            ->when($maxPrice, function ($query) use ($maxPrice) {
+                $query->where('price', '<=', $maxPrice);
+            })
+            ->get();
+
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('products.partials.items', compact('items'))->render()
+            ]);
+        }
+
         return view('products.index', compact('items'));
     }
 
@@ -34,9 +59,6 @@ class ProductsController extends Controller
         return view('products.detail', compact('item'));
     }
 
-    /**
-     * 👈 修正：商品編集画面を表示（これが足りていませんでした！）
-     */
     public function edit(Product $item)
     {
         return view('products.edit', compact('item'));
@@ -47,7 +69,6 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        // 簡易バリデーション（必要に応じて追加してください）
         $request->validate([
             'product_name' => 'required|string|max:255',
             'price'        => 'required|numeric|min:0',
@@ -60,7 +81,7 @@ class ProductsController extends Controller
 
         Product::create([
             'user_id' => auth()->id(),
-            'company_id' => 1, // 仮の会社ID
+            'company_id' => auth()->user()->company_id,
             'product_name' => $request->input('product_name'),
             'price' => $request->input('price'),
             'stock' => $request->input('stock'),
@@ -68,7 +89,6 @@ class ProductsController extends Controller
             'image_path' => $path,
         ]);
 
-        // 👈 追記：登録が終わったら一覧画面に戻すリダイレクト
         return redirect()->route('products.index')
             ->with('success', '商品を登録しました。');
     }
@@ -78,7 +98,6 @@ class ProductsController extends Controller
      */
     public function update(Request $request, Product $item)
     {
-        // 1. バリデーション（入力値のチェック）
         $request->validate([
             'product_name' => 'required|string|max:255',
             'price'        => 'required|numeric|min:0',
@@ -87,31 +106,23 @@ class ProductsController extends Controller
             'image_path'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // 2. フォームの入力値をセット（画像以外）
         $item->product_name = $request->input('product_name');
         $item->price        = $request->input('price');
         $item->description  = $request->input('description');
         $item->stock        = $request->input('stock');
 
-        // 3. 画像が新しくアップロードされた場合の処理
         if ($request->hasFile('image_path')) {
 
-            // 古い画像がすでに存在していれば、サーバーから削除する
             if ($item->image_path) {
                 Storage::disk('public')->delete($item->image_path);
             }
-
-            // 新しい画像を 'public/products' フォルダに保存し、そのパスを取得
             $path = $request->file('image_path')->store('products', 'public');
 
-            // データベースに新しいパスを保存
             $item->image_path = $path;
         }
 
-        // 4. データベースを更新
         $item->save();
 
-        // 5. 更新完了後、商品詳細ページにリダイレクト
         return redirect()->route('products.detail', $item)
             ->with('success', '商品を更新しました。');
     }
@@ -121,16 +132,85 @@ class ProductsController extends Controller
      */
     public function destroy(Product $item)
     {
-        // もし商品画像があれば、サーバーから画像ファイルも一緒に削除する（親切設計）
         if ($item->image_path) {
             Storage::disk('public')->delete($item->image_path);
         }
 
-        // データベースから商品を削除
         $item->delete();
 
-        // 削除完了後、一覧画面にリダイレクト
         return redirect()->route('products.index')
             ->with('success', '商品を削除しました。');
+    }
+
+    /**
+     * 商品にいいねを追加する
+     */
+    public function like(Product $item)
+    {
+        if (!$item->isLikedBy(auth()->user())) {
+            $item->likes()->create([
+                'user_id' => auth()->id(),
+            ]);
+        }
+
+        $likes_count = $item->likes()->count();
+
+        return response()->json([
+            'likes_count' => $likes_count
+        ]);
+    }
+
+    public function unlike(Product $item)
+    {
+        if ($item->isLikedBy(auth()->user())) {
+            $item->likes()->where('user_id', auth()->id())->delete();
+        }
+
+        $likes_count = $item->likes()->count();
+
+        return response()->json([
+            'likes_count' => $likes_count
+        ]);
+    }
+
+    /**
+     * 出品商品の詳細画面を表示
+     */
+    public function exhibit_detail(Product $item)
+    {
+        return view('products.exhibit_detail', compact('item'));
+    }
+
+    /**
+     * 購入画面
+     */
+    public function checkout(Product $item)
+    {
+        return view('products.checkout', compact('item'));
+    }
+
+    public function processCheckout(Request $request, Product $item)
+    {
+        if ($item->stock <= 0) {
+            return redirect()->back()->withErrors(['quantity' => 'この商品は売り切れたため、購入できません。']);
+        }
+
+        $request->validate([
+            'quantity' => "required|integer|min:1|max:{$item->stock}",
+        ]);
+
+        $quantity = $request->input('quantity');
+
+        $item->stock = $item->stock - $quantity;
+        $item->save();
+
+        \App\Models\Sale::create([
+            'user_id'     => auth()->id(),
+            'products_id' => $item->id,
+            'quantity'    => $quantity,
+        ]);
+
+        return redirect()->route('products.index')
+            ->with('success', '購入が完了しました！');
     }
 }

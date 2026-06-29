@@ -1,39 +1,67 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+@extends('layouts.app')
+
+@section('title', '商品一覧')
+
+@section('content')
+
+@if (session('success'))
+<div class="alert alert-success">
+    {{ session('success') }}
+</div>
+@endif
+
 <div>
-    @include('layouts.header')
     <h1 class="ms-3">商品一覧</h1>
 
-    <table class="table bordered-bottom text-center mx-auto w-75">
-        <thead class="text-center">
-            <tr>
-                <th>商品番号</th>
-                <th>商品名</th>
-                <th>商品説明</th>        
-                <th>画像</th>        
-                <th>料金(¥)</th> 
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($items as $item)
-                <tr>
-                    <td>{{ $item->id }}</td>
-                    <td>{{ $item->product_name }}</td>
-                    <td>{{ $item->description }}</td>  
-                    <td><img src="{{ asset('storage/' . $item->image_path) }}" alt="{{ $item->product_name }}" width="100"></td>
-                    <td>{{ $item->price }}</td>
-                </tr>
-        @endforeach
-        </tbody>         
-    </table>
-    @include('layouts.footer')
+    <form id="search-form" action="" method="GET" class="row g-2 justify-content-center align-items-center mb-5 mx-auto w-75">
+
+        <div class="col-4">
+            <input type="text" name="search" class="form-control" placeholder="商品名を入力" value="{{ request('search') }}">
+        </div>
+
+        <div class="col-3">
+            <input type="number" name="min_price" class="form-control" placeholder="最低価格" value="{{ request('min_price') }}">
+        </div>
+
+        <div class="col-auto text-center">
+            <span>〜</span>
+        </div>
+
+        <div class="col-3">
+            <input type="number" name="max_price" class="form-control" placeholder="最高価格" value="{{ request('max_price') }}">
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary px-4">検索</button>
+        </div>
+
+    </form>
+
+    <div id="items-area">
+        @include('products.partials.items')
+    </div>
+    @endsection
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const form = document.getElementById('search-form');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const params = new URLSearchParams(formData).toString();
+
+                fetch(`/products/index?${params}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('items-area').innerHTML = data.html;
+                    });
+            });
+
+        });
+    </script>
 </div>
