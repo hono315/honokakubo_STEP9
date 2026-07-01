@@ -13,7 +13,7 @@
         <p>説明:{{$item->description}}</p>
         <P>画像:<img src="{{ asset('storage/' . $item->image_path) }}" alt="商品画像" style="max-width: 300px;"></P>
         <p>価格:{{$item->price}}円</p>
-        <p>会社名:</p>
+        <p>会社名:{{$item->company->company_name}}</p>
     </div>
 
 
@@ -28,7 +28,7 @@
         <button type="submit" class="btn btn-danger">削除する</button> 
     </form>
 
-    <a href="{{ route('products.index') }}" class="btn btn-secondary">
+    <a href="{{ route('mypage') }}" class="btn btn-secondary">
         戻る
     </a>
 

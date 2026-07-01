@@ -1,13 +1,7 @@
 @extends('layouts.app')
-<style>
-    header, footer, .d-flex.justify-content-between.align-items-center.p-3.mb-4 {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-</style>
+@section('styles')
+<link rel="stylesheet" href="{{ asset('css/hide-header-footer.css') }}">
+@endsection
 
 @section('content')
 <div class="container">

@@ -3,7 +3,7 @@
 @section('title', '商品詳細')
 
 @section('content')
-<script src="{{ asset('js/like.js') }}?v={{ time() }}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <div class="container">
     <h1>商品詳細</h1>
 
@@ -18,7 +18,11 @@
 
         <div class="mb-3">
             <button id="like-button" class="border-0 bg-transparent p-0" data-item-id="{{ $item->id }}">
-                <i class="fas fa-heart" style="color: {{ auth()->check() && $item->isLikedBy(auth()->user()) ? 'red' : 'black' }};"></i>
+                @if(auth()->check() && $item->isLikedBy(auth()->user()))
+                <i class="fa-solid fa-heart text-danger fs-4"></i>
+                @else
+                <i class="fa-regular fa-heart text-secondary fs-4"></i>
+                @endif
             </button>
         </div>
 
@@ -35,4 +39,7 @@
         </div>
     </div>
 </div>
+@endsection
+@section('scripts')
+<script src="{{ asset('js/like.js') }}?v={{ time() }}"></script>
 @endsection

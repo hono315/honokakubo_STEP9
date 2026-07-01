@@ -29,8 +29,8 @@
             
             <p>金額:{{$item->price}}円</p>
             <p>残り:{{$item->stock}}</p>
-            <p>会社名:</p>
-            
+            <p>会社名:{{ $item->company->company_name }}</p>
+
             <div class="mt-3">
                 @if($item->stock > 0)
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">
@@ -63,15 +63,7 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const executeBtn = document.getElementById('executePurchaseBtn');
-        if (executeBtn) {
-            executeBtn.addEventListener('click', function () {
-                document.getElementById('purchaseForm').submit();
-            });
-        }
-    });
-</script>
+@endsection
+@section('scripts')
+<script src="{{ asset('js/checkout.js') }}"></script>
 @endsection
