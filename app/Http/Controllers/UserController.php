@@ -10,8 +10,18 @@ class UserController extends Controller
 {
     public function mypage()
     {
+        /** @var \App\Models\User $user */ //
         $user = Auth::user();
-        return view('mypage', compact('user'));
+
+        $exhibitedProducts = $user->products()
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $purchasedItems = $user->salesProducts()
+            ->orderBy('sales.created_at', 'asc')
+            ->get();
+
+        return view('mypage', compact('user','exhibitedProducts', 'purchasedItems'));
     }
 
     public function edit()

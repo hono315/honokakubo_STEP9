@@ -5,6 +5,8 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,3 +45,4 @@ Route::post('/products/checkout/{item}', [ProductsController::class, 'processChe
 
 Route::get('/contact',[ContactController::class,'showForm'])->name('contact.index');
 Route::post('/contact',[ContactController::class,'submitForm'])->name('contact.submit');
+

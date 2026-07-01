@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('companies', function (Blueprint $table) {
-            $table->id();
-            $table->string('company_name'); //会社名
-            $table->timestamps(); //作成日・更新日
+        Schema::table('sales', function (Blueprint $table) {
+           $table->renameColumn('products_id', 'product_id');
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('companies');
+        Schema::table('sales', function (Blueprint $table) {
+            $table->renameColumn('product_id', 'products_id');
+        });
     }
 };

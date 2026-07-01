@@ -39,7 +39,7 @@ class User extends Authenticatable
 
 public function salesProducts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'sales', 'user_id', 'products_id')
+        return $this->belongsToMany(Product::class, 'sales', 'user_id', 'product_id')
                     ->withPivot('quantity') 
                     ->withTimestamps();
     }

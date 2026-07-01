@@ -14,27 +14,10 @@ class ProductsController extends Controller
      */
     public function index(Request $request)
     {
-        $search   = $request->input('search');
-        $minPrice = $request->input('min_price');
-        $maxPrice = $request->input('max_price');
-
-        $items = Product::query()
-            ->when(auth()->check(), function ($query) {
-                $query->where('user_id', '!=', auth()->id());
-            })
-            ->when($search, function ($query) use ($search) {
-                $query->where('product_name', 'like', "%{$search}%");
-            })
-            ->when($minPrice, function ($query) use ($minPrice) {
-                $query->where('price', '>=', $minPrice);
-            })
-            ->when($maxPrice, function ($query) use ($maxPrice) {
-                $query->where('price', '<=', $maxPrice);
-            })
+       $items = Product::searchProducts($request->only(['search', 'min_price', 'max_price']))
             ->get();
 
-
-        if ($request->ajax()) {
+       if ($request->ajax()) {
             return response()->json([
                 'html' => view('products.partials.items', compact('items'))->render()
             ]);
@@ -81,7 +64,7 @@ class ProductsController extends Controller
 
         Product::create([
             'user_id' => auth()->id(),
-            'company_id' => auth()->user()->company_id,
+            'company_id' => auth()->user()->company_id ?? 1,
             'product_name' => $request->input('product_name'),
             'price' => $request->input('price'),
             'stock' => $request->input('stock'),
@@ -89,7 +72,7 @@ class ProductsController extends Controller
             'image_path' => $path,
         ]);
 
-        return redirect()->route('products.index')
+        return redirect()->route('mypage')
             ->with('success', '商品を登録しました。');
     }
 
@@ -123,7 +106,7 @@ class ProductsController extends Controller
 
         $item->save();
 
-        return redirect()->route('products.detail', $item)
+        return redirect()->route('products.exhibit_detail', $item)
             ->with('success', '商品を更新しました。');
     }
 
@@ -138,7 +121,7 @@ class ProductsController extends Controller
 
         $item->delete();
 
-        return redirect()->route('products.index')
+        return redirect()->route('mypage')
             ->with('success', '商品を削除しました。');
     }
 
@@ -206,7 +189,7 @@ class ProductsController extends Controller
 
         \App\Models\Sale::create([
             'user_id'     => auth()->id(),
-            'products_id' => $item->id,
+            'product_id' => $item->id,
             'quantity'    => $quantity,
         ]);
 

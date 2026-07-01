@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['user_id', 'products_id', 'quantity'])]
+#[Fillable(['user_id', 'product_id', 'quantity'])]
 class Sale extends Model
 {
     use HasFactory;
@@ -20,6 +20,6 @@ class Sale extends Model
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'products_id');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

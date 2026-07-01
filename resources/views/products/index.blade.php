@@ -40,28 +40,8 @@
     <div id="items-area">
         @include('products.partials.items')
     </div>
-    @endsection
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const form = document.getElementById('search-form');
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const params = new URLSearchParams(formData).toString();
-
-                fetch(`/products/index?${params}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('items-area').innerHTML = data.html;
-                    });
-            });
-
-        });
-    </script>
 </div>
+@endsection
+@section('scripts')
+<script src="{{ asset('js/products-search.js') }}"></script>
+@endsection

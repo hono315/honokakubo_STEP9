@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (likeBtn) {
         likeBtn.addEventListener('click', function () {
-            // ★ここをチェック！ data-item-id から正しく 'itemId' を作ります
             const itemId = this.getAttribute('data-item-id');
             
             if (!itemId) {
@@ -13,11 +12,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // ★ itemId を使って、Laravelのルート（/products/ID/like）に繋ぎます
             const url = `/products/${itemId}/like`;
+            const heartIcon = this.querySelector('i');
             
-            // 現在のハートの色（style.color）を見てPOSTかDELETEかを判定
-            const method = this.querySelector('i').style.color === 'red' ? 'DELETE' : 'POST';
+            const isLiked = heartIcon.classList.contains('text-danger');
+            const method = isLiked ? 'DELETE' : 'POST';
 
             fetch(url, {
                 method: method,
@@ -34,8 +33,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(data => {
-                const heartIcon = this.querySelector('i');
-                heartIcon.style.color = method === 'POST' ? 'red' : 'black';
+                if (method === 'POST') {
+                    heartIcon.classList.remove('fa-regular', 'text-secondary');
+                    heartIcon.classList.add('fa-solid', 'text-danger');
+                } else {
+                    heartIcon.classList.remove('fa-solid', 'text-danger');
+                    heartIcon.classList.add('fa-regular', 'text-secondary');
+                }
             })
             .catch(error => console.error('エラー発生:', error));
         });
